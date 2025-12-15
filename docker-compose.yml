@@ -1,0 +1,126 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: doswallet-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: doswallet123
+      MYSQL_DATABASE: doswallet
+      MYSQL_USER: doswallet_user
+      MYSQL_PASSWORD: doswallet123
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - doswallet-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pdoswallet123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # User Service
+  user-service:
+    build:
+      context: ./backend
+      dockerfile: user-service/Dockerfile
+    container_name: doswallet-user-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: doswallet_user
+      DB_PASSWORD: doswallet123
+      DB_NAME: doswallet
+      JWT_SECRET: doswallet-secret-key-change-in-production
+      USER_SERVICE_PORT: 5001
+      CORS_ORIGINS: "*"
+    ports:
+      - "5001:5001"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - doswallet-network
+    restart: unless-stopped
+
+  # Wallet Service
+  wallet-service:
+    build:
+      context: ./backend
+      dockerfile: wallet-service/Dockerfile
+    container_name: doswallet-wallet-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: doswallet_user
+      DB_PASSWORD: doswallet123
+      DB_NAME: doswallet
+      JWT_SECRET: doswallet-secret-key-change-in-production
+      WALLET_SERVICE_PORT: 5002
+      CORS_ORIGINS: "*"
+    ports:
+      - "5002:5002"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - doswallet-network
+    restart: unless-stopped
+
+  # Transaction Service
+  transaction-service:
+    build:
+      context: ./backend
+      dockerfile: transaction-service/Dockerfile
+    container_name: doswallet-transaction-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: doswallet_user
+      DB_PASSWORD: doswallet123
+      DB_NAME: doswallet
+      JWT_SECRET: doswallet-secret-key-change-in-production
+      TRANSACTION_SERVICE_PORT: 5003
+      CORS_ORIGINS: "*"
+    ports:
+      - "5003:5003"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - doswallet-network
+    restart: unless-stopped
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./backend
+      dockerfile: notification-service/Dockerfile
+    container_name: doswallet-notification-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: doswallet_user
+      DB_PASSWORD: doswallet123
+      DB_NAME: doswallet
+      JWT_SECRET: doswallet-secret-key-change-in-production
+      NOTIFICATION_SERVICE_PORT: 5004
+      CORS_ORIGINS: "*"
+    ports:
+      - "5004:5004"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - doswallet-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  doswallet-network:
+    driver: bridge
+
