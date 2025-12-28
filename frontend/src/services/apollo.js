@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import storage from '../utils/storage';
 
 // Base URLs for microservices
 const USER_SERVICE_URL = 'http://localhost:5001/graphql';
@@ -16,7 +16,7 @@ const notificationLink = createHttpLink({ uri: NOTIFICATION_SERVICE_URL });
 
 // Auth link to add token to headers
 const authLink = setContext(async (_, { headers }) => {
-  const token = await AsyncStorage.getItem('token');
+  const token = await storage.getItem('token');
   return {
     headers: {
       ...headers,

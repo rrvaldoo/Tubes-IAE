@@ -15,6 +15,12 @@ COPY shared /app/../shared
 # Copy wallet-service for transaction service dependency
 COPY wallet-service /app/../wallet-service
 
+# Copy user-service for transaction service dependency
+COPY user-service /app/../user-service
+
+# Copy notification-service for transaction service dependency
+COPY notification-service /app/../notification-service
+
 # Copy requirements
 COPY transaction-service/requirements.txt requirements.txt
 

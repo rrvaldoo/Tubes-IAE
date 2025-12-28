@@ -5,14 +5,12 @@ services:
     container_name: doswallet-mysql
     environment:
       MYSQL_ROOT_PASSWORD: doswallet123
-      MYSQL_DATABASE: doswallet
-      MYSQL_USER: doswallet_user
-      MYSQL_PASSWORD: doswallet123
+      # Multiple databases and users will be created by init scripts mounted below
     ports:
       - "3310:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./database/init:/docker-entrypoint-initdb.d
     networks:
       - doswallet-network
     healthcheck:
@@ -30,9 +28,10 @@ services:
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: doswallet_user
-      DB_PASSWORD: doswallet123
-      DB_NAME: doswallet
+      DB_USER: dos_user
+      DB_PASSWORD: dos_user_pass
+      DB_NAME: doswallet_user_db
+      DB_POOL_SIZE: 5
       JWT_SECRET: doswallet-secret-key-change-in-production
       USER_SERVICE_PORT: 5001
       CORS_ORIGINS: "*"
@@ -54,9 +53,10 @@ services:
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: doswallet_user
-      DB_PASSWORD: doswallet123
-      DB_NAME: doswallet
+      DB_USER: dos_wallet
+      DB_PASSWORD: dos_wallet_pass
+      DB_NAME: doswallet_wallet_db
+      DB_POOL_SIZE: 8
       JWT_SECRET: doswallet-secret-key-change-in-production
       WALLET_SERVICE_PORT: 5002
       CORS_ORIGINS: "*"
@@ -78,9 +78,10 @@ services:
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: doswallet_user
-      DB_PASSWORD: doswallet123
-      DB_NAME: doswallet
+      DB_USER: dos_tx
+      DB_PASSWORD: dos_tx_pass
+      DB_NAME: doswallet_transaction_db
+      DB_POOL_SIZE: 12
       JWT_SECRET: doswallet-secret-key-change-in-production
       TRANSACTION_SERVICE_PORT: 5003
       CORS_ORIGINS: "*"
@@ -102,9 +103,10 @@ services:
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: doswallet_user
-      DB_PASSWORD: doswallet123
-      DB_NAME: doswallet
+      DB_USER: dos_notify
+      DB_PASSWORD: dos_notify_pass
+      DB_NAME: doswallet_notification_db
+      DB_POOL_SIZE: 3
       JWT_SECRET: doswallet-secret-key-change-in-production
       NOTIFICATION_SERVICE_PORT: 5004
       CORS_ORIGINS: "*"

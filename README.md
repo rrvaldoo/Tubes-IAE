@@ -21,8 +21,6 @@ Aplikasi ini menggunakan arsitektur **microservices** dengan 4 service terpisah:
 - **Python 3.8+**
 - **Node.js 16+** dan **npm/yarn**
 - **MySQL 8.0+**
-- **Expo CLI** (untuk React Native)
-- **Android Studio** (untuk development Android)
 
 ## 🐳 Quick Start dengan Docker
 
@@ -145,10 +143,6 @@ npm start
 expo start
 ```
 
-Untuk Android:
-```bash
-npm run android
-```
 
 ## 📱 Frontend
 
@@ -231,10 +225,6 @@ const WALLET_SERVICE_URL = 'http://localhost:5002/graphql';
 // ... dst
 ```
 
-**Untuk Android Emulator**, gunakan `10.0.2.2` sebagai ganti `localhost`:
-```javascript
-const USER_SERVICE_URL = 'http://10.0.2.2:5001/graphql';
-```
 
 ## 📊 Database Schema
 
@@ -336,8 +326,8 @@ doswallet/
 
 1. **Cannot connect to backend:**
    - Pastikan semua backend service berjalan
-   - Untuk Android emulator, gunakan `10.0.2.2` sebagai ganti `localhost`
    - Cek firewall settings
+   - Pastikan CORS settings di backend mengizinkan origin frontend
 
 2. **GraphQL errors:**
    - Pastikan token JWT valid
@@ -352,7 +342,7 @@ doswallet/
 ## 📝 TODO / Future Improvements
 
 - [ ] Implementasi QRIS payment yang lengkap
-- [ ] Integrasi dengan Food Delivery System
+- [x] Integrasi dengan Food Delivery System
 - [ ] Push notifications
 - [ ] Biometric authentication
 - [ ] Transaction export (PDF/Excel)

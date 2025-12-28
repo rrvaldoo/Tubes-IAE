@@ -11,11 +11,17 @@ from auth import generate_token, verify_token, get_token_from_request
 from models import User
 
 class UserType(ObjectType):
-    user_id = Int()
+    userId = Int(name='userId')
     name = String()
     email = String()
     phone = String()
     created_at = String()
+    
+    def resolve_userId(self, info):
+        """Resolve userId from user_id"""
+        if isinstance(self, dict):
+            return self.get('user_id')
+        return getattr(self, 'user_id', None)
 
 class AuthResponse(ObjectType):
     token = String()
@@ -35,7 +41,7 @@ class LoginInput(graphene.InputObjectType):
 
 class Query(ObjectType):
     me = Field(UserType)
-    user = Field(UserType, user_id=Int(required=True))
+    user = Field(UserType, userId=Int(required=True, name='userId'))
     
     def resolve_me(self, info):
         """Get current user from token"""
@@ -49,9 +55,9 @@ class Query(ObjectType):
         
         return User.get_by_id(payload['user_id'])
     
-    def resolve_user(self, info, user_id):
+    def resolve_user(self, info, userId):
         """Get user by ID"""
-        return User.get_by_id(user_id)
+        return User.get_by_id(userId)
 
 class Register(graphene.Mutation):
     class Arguments:

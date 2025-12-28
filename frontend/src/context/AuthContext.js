@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import storage from '../utils/storage';
 
 export const AuthContext = createContext();
 
@@ -14,8 +14,8 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      const userData = await AsyncStorage.getItem('user');
+      const token = await storage.getItem('token');
+      const userData = await storage.getItem('user');
       
       if (token && userData) {
         setIsAuthenticated(true);
@@ -30,8 +30,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (token, userData) => {
     try {
-      await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      await storage.setItem('token', token);
+      await storage.setItem('user', JSON.stringify(userData));
       setIsAuthenticated(true);
       setUser(userData);
     } catch (error) {
@@ -42,8 +42,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem('token');
-      await AsyncStorage.removeItem('user');
+      await storage.removeItem('token');
+      await storage.removeItem('user');
       setIsAuthenticated(false);
       setUser(null);
     } catch (error) {

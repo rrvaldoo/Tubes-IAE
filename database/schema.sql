@@ -37,11 +37,16 @@ CREATE TABLE IF NOT EXISTS transactions (
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     receiver_id INT NULL,
     description TEXT,
+    idempotency_key VARCHAR(100) DEFAULT NULL,
+    status ENUM('pending','completed','failed') DEFAULT 'completed',
+    qr_payload TEXT DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (receiver_id) REFERENCES users(user_id) ON DELETE SET NULL,
     INDEX idx_user_id (user_id),
     INDEX idx_date (date),
     INDEX idx_type (type)
+    ,
+    UNIQUE KEY unique_idempotency (idempotency_key)
 );
 
 -- Notification Table

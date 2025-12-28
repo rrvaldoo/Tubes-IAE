@@ -19,7 +19,7 @@ def get_pool():
             try:
                 db_pool = pooling.MySQLConnectionPool(
                     pool_name="doswallet_pool",
-                    pool_size=5,
+                    pool_size=DB_CONFIG.get('pool_size', 5),
                     pool_reset_session=True,
                     host=DB_CONFIG['host'],
                     port=DB_CONFIG['port'],

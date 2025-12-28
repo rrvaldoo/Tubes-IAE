@@ -6,25 +6,32 @@ import {
   TouchableOpacity,
   Alert,
   Dimensions,
+  Platform,
 } from 'react-native';
-import { Camera } from 'expo-camera';
+// Camera is dynamically imported on native platforms only
 import QRCode from 'react-native-qrcode-svg';
 import colors from '../theme/colors';
 
 const { width } = Dimensions.get('window');
 
 export default function QRISScreen({ navigation }) {
-  const [hasPermission, setHasPermission] = useState(null);
+  const isWeb = Platform.OS === 'web' || (typeof window !== 'undefined' && typeof window.document !== 'undefined');
+  const [CameraComponent, setCameraComponent] = useState(null);
+  const [hasPermission, setHasPermission] = useState(isWeb ? false : null);
   const [scanned, setScanned] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [qrData, setQrData] = useState('DosWallet:QRIS:1234567890'); // Placeholder
 
   React.useEffect(() => {
+    if (isWeb) return;
+
     (async () => {
+      const { Camera } = await import('expo-camera');
+      setCameraComponent(() => Camera);
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
-  }, []);
+  }, [isWeb]);
 
   const handleBarCodeScanned = ({ type, data }) => {
     if (!scanned) {
@@ -42,7 +49,7 @@ export default function QRISScreen({ navigation }) {
     }
   };
 
-  if (hasPermission === null) {
+  if (!isWeb && hasPermission === null) {
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Requesting camera permission...</Text>
@@ -50,7 +57,7 @@ export default function QRISScreen({ navigation }) {
     );
   }
 
-  if (hasPermission === false) {
+  if (!isWeb && hasPermission === false) {
     return (
       <View style={styles.container}>
         <Text style={styles.text}>No access to camera</Text>
@@ -82,11 +89,26 @@ export default function QRISScreen({ navigation }) {
       ) : (
         <View style={styles.scannerContainer}>
           <Text style={styles.title}>Scan QRIS Code</Text>
-          <Camera
-            style={styles.camera}
-            type={Camera.Constants.Type.back}
-            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-          />
+          {isWeb ? (
+            <View style={{ alignItems: 'center', padding: 20 }}>
+              <Text style={styles.text}>Camera scanning is not available on web.</Text>
+              <TouchableOpacity
+                style={[styles.button, { marginTop: 20 }]}
+                onPress={() => setShowQR(true)}
+              >
+                <Text style={styles.buttonText}>Show My QR</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            CameraComponent && (
+              <CameraComponent
+                style={styles.camera}
+                type={CameraComponent.Constants.Type.back}
+                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+              />
+            )
+          )}
+
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}

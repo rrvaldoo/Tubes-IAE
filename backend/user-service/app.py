@@ -17,6 +17,16 @@ from schema import schema
 app = Flask(__name__)
 CORS(app, origins=CORS_ORIGINS)
 
+# Optional debug logging for GraphQL requests. Set DEBUG_GRAPHQL=1 in environment to enable capturing POST bodies.
+@app.before_request
+def _log_graphql_request_body():
+    try:
+        if request.path == '/graphql' and request.method == 'POST' and os.getenv('DEBUG_GRAPHQL', '0') == '1':
+            data = request.get_data(as_text=True)
+            app.logger.debug('GraphQL request body: %s', data)
+    except Exception:
+        pass
+
 # GraphQL endpoint
 app.add_url_rule(
     '/graphql',

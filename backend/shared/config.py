@@ -13,7 +13,9 @@ DB_CONFIG = {
     'user': os.getenv('DB_USER', 'root'),
     'password': os.getenv('DB_PASSWORD', ''),
     'database': os.getenv('DB_NAME', 'doswallet'),
-    'charset': 'utf8mb4'
+    'charset': 'utf8mb4',
+    # Connection pool size can be tuned per service via DB_POOL_SIZE env var
+    'pool_size': int(os.getenv('DB_POOL_SIZE', 5))
 }
 
 # JWT Configuration
@@ -31,4 +33,7 @@ SERVICE_PORTS = {
 
 # CORS Configuration
 CORS_ORIGINS = os.getenv('CORS_ORIGINS', '*').split(',')
+
+# Optional API keys for external integrations (set in .env for production)
+TRANSACTION_API_KEY = os.getenv('TRANSACTION_API_KEY', None)
 

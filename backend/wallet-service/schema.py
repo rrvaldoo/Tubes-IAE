@@ -2,7 +2,7 @@
 Wallet Service GraphQL Schema
 """
 import graphene
-from graphene import ObjectType, String, Decimal, Int, Field
+from graphene import ObjectType, String, Decimal, Int, Field, Float
 import sys
 import os
 
@@ -11,15 +11,34 @@ from auth import verify_token, get_token_from_request
 from models import Wallet
 
 class WalletType(ObjectType):
-    wallet_id = Int()
-    user_id = Int()
-    balance = Decimal()
+    # Force snake_case field names to match frontend queries
+    wallet_id = Int(name='wallet_id')
+    user_id = Int(name='user_id')
+    balance = Float()  # Use Float instead of Decimal for compatibility
     points = Int()
-    created_at = String()
-    updated_at = String()
+    created_at = String(name='created_at')
+    updated_at = String(name='updated_at')
+    
+    def resolve_balance(self, info):
+        """Resolve balance as Float"""
+        if isinstance(self, dict):
+            balance_val = self.get('balance')
+        else:
+            balance_val = getattr(self, 'balance', None)
+        
+        if balance_val is None:
+            return None
+        
+        try:
+            if hasattr(balance_val, '__float__'):
+                return float(balance_val)
+            return float(balance_val)
+        except (ValueError, TypeError):
+            return None
 
 class Query(ObjectType):
-    my_wallet = Field(WalletType)
+    # Support both snake_case and camelCase
+    my_wallet = Field(WalletType, name='my_wallet')
     wallet = Field(WalletType, user_id=Int(required=True))
     
     def resolve_my_wallet(self, info):
